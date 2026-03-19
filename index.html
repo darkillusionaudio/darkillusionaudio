@@ -1127,7 +1127,7 @@
     <div class="stats-grid">
       <div class="stat-box"><div class="stat-num">100%</div><div class="stat-label">Fait main</div></div>
       <div class="stat-box"><div class="stat-num">∞</div><div class="stat-label">Possibilités sonores</div></div>
-      <div class="stat-box"><div class="stat-num">48H</div><div class="stat-label">Délai de fabrication</div></div>
+      <div class="stat-box"><div class="stat-num">ESTIM.</div><div class="stat-label">Délai de fabrication</div></div>
       <div class="stat-box"><div class="stat-num">01</div><div class="stat-label">Luthier artisan</div></div>
     </div>
   </div>
@@ -1306,24 +1306,34 @@
     <p class="section-label">// Entrons en contact</p>
     <h2 class="section-title">COMMANDER<br>OU POSER UNE<br>QUESTION</h2>
     <p class="section-body" style="margin-top:16px;">Pédale sur mesure, modification, simple curiosité — toutes les demandes sont les bienvenues.</p>
-    <div class="contact-form">
+    <form class="contact-form" action="https://formspree.io/f/mjgalwze" method="POST" id="contact-form">
       <div class="form-row">
-        <div class="form-field"><label>Prénom</label><input type="text" placeholder="Jean"></div>
-        <div class="form-field"><label>Nom</label><input type="text" placeholder="Dupont"></div>
+        <div class="form-field"><label for="prenom">Prénom</label><input type="text" id="prenom" name="prenom" placeholder="Jean" required></div>
+        <div class="form-field"><label for="nom">Nom</label><input type="text" id="nom" name="nom" placeholder="Dupont" required></div>
       </div>
-      <div class="form-field"><label>Email</label><input type="email" placeholder="jean@example.com"></div>
+      <div class="form-field"><label for="email">Email</label><input type="email" id="email" name="email" placeholder="jean@example.com" required></div>
       <div class="form-field">
-        <label>Type de demande</label>
-        <select>
+        <label for="type">Type de demande</label>
+        <select id="type" name="type" style="background:#1a1a1f">
           <option style="background:#1a1a1f">Commander une pédale existante</option>
           <option style="background:#1a1a1f">Pédale sur mesure</option>
           <option style="background:#1a1a1f">Modification de pédale</option>
           <option style="background:#1a1a1f">Question générale</option>
         </select>
       </div>
-      <div class="form-field"><label>Message</label><textarea placeholder="Décrivez votre projet, le son que vous recherchez, vos questions…"></textarea></div>
-      <div class="form-submit"><button class="btn-full">ENVOYER LE MESSAGE</button></div>
-    </div>
+      <div class="form-field"><label for="message">Message</label><textarea id="message" name="message" placeholder="Décrivez votre projet, le son que vous recherchez, vos questions…" required></textarea></div>
+      <input type="hidden" name="_replyto" value="">
+      <input type="hidden" name="_subject" value="Nouveau message — Dark Illusion Audio">
+      <div class="form-submit">
+        <button type="submit" class="btn-full" id="submit-btn">ENVOYER LE MESSAGE</button>
+      </div>
+      <div id="form-success" style="display:none; margin-top:20px; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:3px; color:var(--teal); text-align:center;">
+        ✓ MESSAGE ENVOYÉ — NOUS VOUS RÉPONDRONS RAPIDEMENT
+      </div>
+      <div id="form-error" style="display:none; margin-top:20px; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:2px; color:#c83f3f; text-align:center;">
+        ✗ ERREUR — VEUILLEZ RÉESSAYER
+      </div>
+    </form>
   </div>
 </section>
 
@@ -1369,6 +1379,40 @@
     const nav = document.querySelector('nav');
     if (!nav.contains(e.target)) closeMenu();
   });
+
+
+  // Contact form submission via Formspree
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const success = document.getElementById('form-success');
+      const error = document.getElementById('form-error');
+      btn.textContent = 'ENVOI EN COURS...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(contactForm.action, {
+          method: 'POST',
+          body: new FormData(contactForm),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          success.style.display = 'block';
+          error.style.display = 'none';
+          contactForm.reset();
+          btn.textContent = 'MESSAGE ENVOYÉ ✓';
+        } else {
+          throw new Error('Erreur réseau');
+        }
+      } catch(err) {
+        error.style.display = 'block';
+        success.style.display = 'none';
+        btn.textContent = 'ENVOYER LE MESSAGE';
+        btn.disabled = false;
+      }
+    });
+  }
 
 </script>
 </body>
